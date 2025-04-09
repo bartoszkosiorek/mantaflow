@@ -17,7 +17,7 @@ This installation guide focusses on Ubuntu 24.04 as a distribution. The process 
 
 First, install a few pre-requisites:
 
-    sudo apt install pt-get install cmake g++ git python3-dev qt5-qmake libqt5opengl5-dev 
+    sudo apt install pt-get install cmake g++ git python3-dev qt5-qmake libqt5opengl5-dev libopenvdb-dev
 
 If you want to enable CUDA support, additionally get the latest toolkit from nVidia, and install the appropriate developer driver (be careful though, these driver tend to wreck X11 - get some installation instructions from the web if this is the first time you install CUDA on Linux)
 
@@ -35,3 +35,14 @@ To build the project using CMake, set up a build directory and choose the build 
 That's it! You can now test mantaflow using an example scene
 
     ./manta ../scenes/simpleplume.py
+
+## Run tests ##
+
+Generate reference date and run tests:
+
+    cd tools/tests
+    MANTA_GEN_TEST_DATA=1 ./runTests.py ../../build/manta
+
+Run tests:
+
+    ./runTests.py ../../build/manta
