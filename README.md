@@ -11,3 +11,27 @@ For more information on how to install, run and code with Mantaflow, please head
 
 ![mantaflow logo](resources/mantaflow-logo1.png)
 
+## Building from source ##
+
+This installation guide focusses on Ubuntu 24.04 as a distribution. The process will however look very similar with other distributions, the main differences being the package manager and library package names.
+
+First, install a few pre-requisites:
+
+    sudo apt install pt-get install cmake g++ git python3-dev qt5-qmake libqt5opengl5-dev 
+
+If you want to enable CUDA support, additionally get the latest toolkit from nVidia, and install the appropriate developer driver (be careful though, these driver tend to wreck X11 - get some installation instructions from the web if this is the first time you install CUDA on Linux)
+
+Then, change to the directory to install the source code in, and obtain the current sources from the repository (or alternatively download and extract a source code package)
+
+    git clone https://github.com/thunil/mantaflow.git
+
+To build the project using CMake, set up a build directory and choose the build options (explanation):
+
+    mkdir mantaflow/build
+    cd mantaflow/build
+    cmake .. -DGUI=ON -DOPENMP=ON
+    make -j4
+
+That's it! You can now test mantaflow using an example scene
+
+    ./manta ../scenes/simpleplume.py
