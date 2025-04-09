@@ -10,8 +10,8 @@
 #
 #******************************************************************************
 
-project (MantaFlow)
 cmake_minimum_required(VERSION 2.8)
+project (MantaFlow)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/tools/cmake/")
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
@@ -117,7 +117,7 @@ endif()
 
 # translate option into python version string
 if(NOT PYTHON_VERSION)
-  set(PYTHON_VER_ID) # use any...
+  set(PYTHON_VER_ID 3) # use version 3
 else()
   set(PYTHON_VER_ID ${PYTHON_VERSION})
 endif()
