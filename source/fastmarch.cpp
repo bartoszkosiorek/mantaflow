@@ -231,22 +231,25 @@ template class FastMarch<FmHeapEntryOut, +1>;
 KERNEL(bnd=1)
 void knExtrapolateMACSimple (MACGrid& vel, int distance , Grid<int>& tmp , const int d , const int c ) 
 {
-	static const Vec3i nb[6] = { 
-		Vec3i(1 ,0,0), Vec3i(-1,0,0),
-		Vec3i(0,1 ,0), Vec3i(0,-1,0),
-		Vec3i(0,0,1 ), Vec3i(0,0,-1) };
-	const int dim = (vel.is3D() ? 3:2);
-
 	if (tmp(i,j,k) != 0) return;
 
+	static const Vec3i nb[6] = {
+		Vec3i(i+1, j,   k),
+		Vec3i(i-1, j,   k),
+		Vec3i(i,   j+1, k),
+		Vec3i(i,   j-1, k),
+		Vec3i(i,   j,   k+1),
+		Vec3i(i,   j,   k-1)};
+	const int dim = (vel.is3D() ? 3:2);
+
 	// copy from initialized neighbors
-	Vec3i p(i,j,k);
+	const Vec3i p(i,j,k);
 	int nbs = 0;
 	Real avgVel = 0.;
 	for (int n=0; n<2*dim; ++n) {
-		if (tmp(p+nb[n]) == d) {
+		if (tmp(nb[n]) == d) {
 			//vel(p)[c] = (c+1.)*0.1;
-			avgVel += vel(p+nb[n])[c];
+			avgVel += vel(nb[n])[c];
 			nbs++;
 		}
 	}
@@ -377,21 +380,24 @@ PYTHON() void extrapolateMACSimple (FlagGrid& flags, MACGrid& vel, int distance 
 KERNEL(bnd=1)
 void knExtrapolateMACFromWeight ( MACGrid& vel, Grid<Vec3>& weight, int distance , const int d, const int c ) 
 {
-	static const Vec3i nb[6] = { 
-		Vec3i(1 ,0,0), Vec3i(-1,0,0),
-		Vec3i(0,1 ,0), Vec3i(0,-1,0),
-		Vec3i(0,0,1 ), Vec3i(0,0,-1) };
-	const int dim = (vel.is3D() ? 3:2);
-
 	if (weight(i,j,k)[c] != 0) return;
+
+	static const Vec3i nb[6] = {
+		Vec3i(i+1, j,   k),
+		Vec3i(i-1, j,   k),
+		Vec3i(i,   j+1, k),
+		Vec3i(i,   j-1, k),
+		Vec3i(i,   j,   k+1),
+		Vec3i(i,   j,   k-1)};
+	const int dim = (vel.is3D() ? 3:2);
 
 	// copy from initialized neighbors
 	Vec3i p(i,j,k);
 	int nbs = 0;
 	Real avgVel = 0.;
 	for (int n=0; n<2*dim; ++n) {
-		if (weight(p+nb[n])[c] == d) {
-			avgVel += vel(p+nb[n])[c];
+		if (weight(nb[n])[c] == d) {
+			avgVel += vel(nb[n])[c];
 			nbs++;
 		}
 	}
@@ -431,24 +437,27 @@ PYTHON() void extrapolateMACFromWeight ( MACGrid& vel, Grid<Vec3>& weight, int d
 
 // simple extrapolation functions for levelsets
 
-static const Vec3i nb[6] = { 
-	Vec3i(1 ,0,0), Vec3i(-1,0,0),
-	Vec3i(0,1 ,0), Vec3i(0,-1,0),
-	Vec3i(0,0,1 ), Vec3i(0,0,-1) };
-
 KERNEL(bnd=1) template<class S>
 void knExtrapolateLsSimple (Grid<S>& val, int distance , Grid<int>& tmp , const int d , S direction )
 {
-	const int dim = (val.is3D() ? 3:2); 
 	if (tmp(i,j,k) != 0) return;
+
+	const int dim = (val.is3D() ? 3:2);
+	static const Vec3i nb[6] = {
+		Vec3i(i+1, j,   k),
+		Vec3i(i-1, j,   k),
+		Vec3i(i,   j+1, k),
+		Vec3i(i,   j-1, k),
+		Vec3i(i,   j,   k+1),
+		Vec3i(i,   j,   k-1)};
 
 	// copy from initialized neighbors
 	Vec3i p(i,j,k);
 	int   nbs = 0;
 	S     avg(0.);
 	for (int n=0; n<2*dim; ++n) {
-		if (tmp(p+nb[n]) == d) {
-			avg += val(p+nb[n]);
+		if (tmp(nb[n]) == d) {
+			avg += val(nb[n]);
 			nbs++;
 		}
 	}
@@ -486,12 +495,21 @@ PYTHON() void extrapolateLsSimple (Grid<Real>& phi, int distance = 4, bool insid
 			if ( phi(i,j,k) > 0. ) { tmp(i,j,k) = 1; }
 		} 
 	}
+
+
 	// + first layer around
 	FOR_IJK_BND(phi,1) {
+		static const Vec3i nb[6] = {
+			Vec3i(i+1, j,   k),
+			Vec3i(i-1, j,   k),
+			Vec3i(i,   j+1, k),
+			Vec3i(i,   j-1, k),
+			Vec3i(i,   j,   k+1),
+			Vec3i(i,   j,   k-1)};
 		Vec3i p(i,j,k);
 		if ( tmp(p) ) continue;
 		for (int n=0; n<2*dim; ++n) {
-			if (tmp(p+nb[n])==1) {
+			if (tmp(nb[n])==1) {
 				tmp(i,j,k) = 2; n=2*dim;
 			}
 		}
@@ -528,8 +546,15 @@ PYTHON() void extrapolateVec3Simple (Grid<Vec3>& vel, Grid<Real>& phi, int dista
 	FOR_IJK_BND(vel,1) {
 		Vec3i p(i,j,k);
 		if ( tmp(p) ) continue;
+		static const Vec3i nb[6] = {
+			Vec3i(i+1, j,   k),
+			Vec3i(i-1, j,   k),
+			Vec3i(i,   j+1, k),
+			Vec3i(i,   j-1, k),
+			Vec3i(i,   j,   k+1),
+			Vec3i(i,   j,   k-1)};
 		for (int n=0; n<2*dim; ++n) {
-			if (tmp(p+nb[n])==1) {
+			if (tmp(nb[n])==1) {
 				tmp(i,j,k) = 2; n=2*dim;
 			}
 		}
