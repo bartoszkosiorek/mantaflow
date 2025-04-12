@@ -1,7 +1,7 @@
 # Mantaflow #
 
 Mantaflow is an open-source framework targeted at fluid simulation research in Computer Graphics.
-Its parallelized C++ solver core, python scene definition interface and plugin system allow for quickly prototyping and testing new algorithms. 
+Its parallelized C++ solver core, python scene definition interface and plugin system allow for quickly prototyping and testing new algorithms.
 
 In addition, it provides a toolbox of examples for deep learning experiments with fluids. E.g., it contains examples
 how to build convolutional neural network setups in conjunction with the [tensorflow framework](https://www.tensorflow.org).
@@ -17,7 +17,7 @@ This installation guide focusses on Ubuntu 24.04 as a distribution. The process 
 
 First, install a few pre-requisites:
 
-    sudo apt install pt-get install cmake g++ git python3-dev qt5-qmake libqt5opengl5-dev libopenvdb-dev
+    sudo apt install pt-get install cmake g++ git python3-dev qt5-qmake libqt5opengl5-dev libtbb-dev libopenvdb-dev
 
 If you want to enable CUDA support, additionally get the latest toolkit from nVidia, and install the appropriate developer driver (be careful though, these driver tend to wreck X11 - get some installation instructions from the web if this is the first time you install CUDA on Linux)
 
@@ -29,8 +29,12 @@ To build the project using CMake, set up a build directory and choose the build 
 
     mkdir mantaflow/build
     cd mantaflow/build
-    cmake .. -DGUI=ON -DOPENMP=ON
-    make -j4
+    cmake .. -DGUI=ON -DOPENVDB=ON
+    make -j8
+
+To build Mantaflow with OpenVDB and Threading Building Blocks (TBB) support, you need to disable GUI. There is an issue with duplicated symbols between Qt and Threading Building Blocks (TBB):
+
+    cmake .. -DTBB=ON -DOPENVDB=ON
 
 That's it! You can now test mantaflow using an example scene
 
